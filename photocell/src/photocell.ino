@@ -20,10 +20,12 @@ int photocellReading;
 // whether we consider it to be night or not
 bool isNight;
 
+// current time
+unsigned long currentTime;
 // when we first started recording night
-int initialNightBoundaryPassTime;
+unsigned long initialNightBoundaryPassTime;
 // when we last recorded night
-int lastNightBoundaryPassTime;
+unsigned long lastNightBoundaryPassTime;
 // how many times we've recorded night successively
 int nightBoundaryPassCount;
 
@@ -39,26 +41,27 @@ void setup()
 
 void updateNightState()
 {
+    currentTime = millis();
     photocellReading = analogRead(photocellPin);
 
     if (photocellReading <= nightBoundary) {
         if (nightBoundaryPassCount == 0) {
-            initialNightBoundaryPassTime = millis();
+            initialNightBoundaryPassTime = currentTime;
         }
 
-        lastNightBoundaryPassTime = millis();
+        lastNightBoundaryPassTime = currentTime;
         nightBoundaryPassCount++;
     } else {
         nightBoundaryPassCount = 0;
     }
 
     if (nightBoundaryPassCount == 0) {
-        if (millis() >= (lastNightBoundaryPassTime +
+        if (currentTime >= (lastNightBoundaryPassTime +
             nightBoundaryPassTimeBoundary)) {
             isNight = false;
         }
     } else {
-        if (millis() >= (initialNightBoundaryPassTime +
+        if (currentTime >= (initialNightBoundaryPassTime +
             nightBoundaryPassTimeBoundary)) {
             isNight = true;
         }
@@ -74,5 +77,5 @@ void loop()
     Serial.print("Photocell reading: ");
     Serial.println(photocellReading);
 
-    delay(500);
+    delay(2000);
 }
